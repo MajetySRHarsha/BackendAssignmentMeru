@@ -1,7 +1,9 @@
 ﻿using BackendAssignment.Data;
 using BackendAssignment.Models;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.VisualBasic;
+//THis is the controller
 namespace BackendAssignment.Controllers
 {
     [Route("api/Assignment")]
@@ -18,7 +20,27 @@ namespace BackendAssignment.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Assignment>> GetAssignmentsLive()
         {
-            return dbContext.AssignmentDB.ToList();
+            string dateFormat = "dd-MM-yyyy";
+            List<Assignment> assignments = dbContext.AssignmentDB.ToList();
+            List<Assignment> result = new List<Assignment>();
+            foreach (Assignment assignment in assignments)
+            {
+                string inputDate = assignment.startDate.ToString();
+                string outputDate = assignment.endDate.ToString();
+                if (assignment == null)
+                {
+                    return NotFound();
+                }
+                DateTime currentDate = DateTime.Now;
+                DateTime specifiedDate = DateTime.ParseExact(inputDate, dateFormat, null);
+
+                DateTime specifiedDate1 = DateTime.ParseExact(outputDate, dateFormat, null);
+                if (currentDate>=specifiedDate && currentDate<=specifiedDate1)
+                {
+                    result.Add(assignment);
+                }
+            }
+            return Ok(result);
 
         }
 
@@ -33,7 +55,35 @@ namespace BackendAssignment.Controllers
             dbContext.SaveChanges();
             return Ok(assignment);
         }
-       
+        
+        [HttpGet]
+        [Route("/api/AssignmentFiltered")]
+        public ActionResult<IEnumerable<Assignment>> GetAssignmentsFiltered()
+        {
+            string dateFormat = "dd-MM-yyyy";
+            List<Assignment> assignments = dbContext.AssignmentDB.ToList();
+            List<Assignment> result = new List<Assignment>();
+            foreach (Assignment assignment in assignments)
+            {
+                string inputDate = assignment.startDate.ToString();
+                string outputDate = assignment.endDate.ToString();
+                if (assignment == null)
+                {
+                    return NotFound();
+                }
+                DateTime currentDate = DateTime.Now;
+                DateTime specifiedDate = DateTime.ParseExact(inputDate, dateFormat, null);
+
+                DateTime specifiedDate1 = DateTime.ParseExact(outputDate, dateFormat, null);
+                if (specifiedDate1 <= currentDate && specifiedDate <= currentDate)
+                {
+                    result.Add(assignment);
+                }
+            }
+            return Ok(result);
+
+        }
+
 
 
 
